@@ -1,0 +1,715 @@
+﻿@model IEnumerable<MomWorld.Entities.Category>
+
+@{
+    Layout = "~/Views/Shared/_MWLayout.cshtml";
+    List<MomWorld.Entities.Category> categories = ViewData["Categories"] as List<MomWorld.Entities.Category>;
+    List<MomWorld.Entities.Article> articles = ViewData["Articles"] as List<MomWorld.Entities.Article>;
+    Dictionary<string, string> idDictionary = new Dictionary<string, string>();
+    List<string> categoryIds = new List<string>();
+    int count = 1;
+    foreach (var item in categories)
+    {
+        idDictionary.Add(item.Id, string.Format("category{0}", count));
+        count += 1;
+    }
+}
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
+<head>
+
+    <!-- BASICS -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <title>Mom's World - Mong con</title>
+
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/ico" href="@Url.Content("~/Content/images/favicon.png")" />
+
+    <link href="@Url.Content("~/Content/css/vendor/bootstrap/bootstrap.min.css")"
+          rel="stylesheet">
+    <link href="@Url.Content("~/Content/css/vendor/font-awesome-4.2.0/css/font-awesome.min.css")"
+          rel="stylesheet">
+    <link rel="stylesheet" href="@Url.Content("~/Content/css/vendor/animate/animate.css")">
+
+    <link rel="stylesheet"
+          href="@Url.Content("~/Content/css/vendor/flexslider/flexslider.css")">
+
+    <link rel="stylesheet" href="@Url.Content("~/Content/css/vendor/bootstrap-checkbox.css")">
+    <link rel="stylesheet"
+          href="@Url.Content("~/Content/css/vendor/ribbons/3d-corner-ribbons.css")">
+    <link rel="stylesheet"
+          href="@Url.Content("~/Content/js/vendor/text-rotator/css/simpletextrotator.css")">
+
+    <!-- Important Owl stylesheet -->
+    <link rel="stylesheet"
+          href="@Url.Content("~/Content/js/vendor/owl-carousel/css/owl.carousel.css")">
+    <link rel="stylesheet"
+          href="@Url.Content("~/Content/js/vendor/owl-carousel/css/owl.theme.css")">
+    <link rel="stylesheet"
+          href="@Url.Content("~/Content/js/vendor/owl-carousel/css/owl.transitions.css")">
+
+    <link rel="stylesheet"
+          href="@Url.Content("~/Content/js/vendor/nivo-lightbox/css/nivo-lightbox.css")">
+    <link rel="stylesheet"
+          href="@Url.Content("~/Content/js/vendor/nivo-lightbox/css/themes/default/default.css")"
+          type="text/css" />
+
+
+    <!-- CUSTOM STYLE -->
+    <link rel="stylesheet" href="@Url.Content("~/Content/css/main.css")">
+    <link rel="stylesheet" href="@Url.Content("~/Content/css/minimal.min.css")">
+
+
+    <style type="text/css">
+    </style>
+</head>
+
+<body>
+    <div class="modal fade" id="modalCreateCategory" tabindex="-1"
+         role="dialog" aria-labelledby="modalConfirmLabel" aria-hidden="true"
+         style="background: rgba(0, 0, 0, 0.75); top: 0px;">
+        <div class="modal-dialog" style="margin-top: 100px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">
+                        Thoát
+                    </button>
+                    <h3 class="modal-title" id="modalConfirmLabel">
+                        <strong>Thêm</strong> danh mục
+                    </h3>
+                </div>
+                <div class="modal-body">
+
+                    <!-- The file upload form used as target for the file upload widget -->
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <label for="videoTitle">Tên danh mục:</label> <input type="text"
+                                                                                     class="form-control" id="categoryName"
+                                                                                     placeholder="Nhập tên danh mục ...">
+                            </div>
+
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <label for="comment">Mô tả:</label>
+                                <textarea class="form-control" rows="2" id="categoryDescription"></textarea>
+                            </div>
+
+                        </div>
+
+                        <div class="form-group form-footer">
+                            <div class="col-sm-offset-4 col-sm-8">
+                                <button type="submit" class="btn btn-green" id="submitCategory">Thêm</button>
+                                <button type="reset" class="btn btn-red">Hủy</button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+    <!-- Modal -->
+    <div class="modal fade" id="modalEditCategory" tabindex="-1"
+         role="dialog" aria-labelledby="modalConfirmLabel" aria-hidden="true"
+         style="background: rgba(0, 0, 0, 0.75); top: 0px;">
+        <div class="modal-dialog" style="margin-top: 100px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">
+                        Thoát
+                    </button>
+                    <h3 class="modal-title" id="modalConfirmLabel">
+                        <strong>Sửa</strong> danh mục
+                    </h3>
+                </div>
+                <div class="modal-body">
+
+                    <!-- The file upload form used as target for the file upload widget -->
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <label for="videoTitle">Tên danh mục:</label> <input type="text"
+                                                                                     class="form-control" id="videoTitle"
+                                                                                     placeholder="Nhập tên danh mục ...">
+                            </div>
+
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <label for="comment">Nội dung:</label>
+                                <textarea class="form-control" rows="5" id="comment"></textarea>
+                            </div>
+
+                        </div>
+
+                        <div class="form-group form-footer">
+                            <div class="col-sm-offset-4 col-sm-8">
+                                <button type="submit" class="btn btn-green">Thêm</button>
+                                <button type="reset" class="btn btn-red">Hủy</button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+    <!-- Preloader -->
+    <div class="mask">
+        <div id="loader"></div>
+    </div>
+    <!--/Preloader -->
+    <!-- BEGIN NAVBAR -->
+    <div class="navbar navbar-fixed-top" role="navigation"
+         data-0="line-height:80px; height:80px;-webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);"
+         data-300="line-height:40px; height:52px;-webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);">
+
+        <div class="container">
+
+
+
+
+
+
+            <!-- Branding -->
+            <div class="navbar-header">
+                <a class="navbar-brand" href="index.html"
+                   data-0="padding-top:23px;padding-left: 55px;background-position: 0 20px;background-size: 44px 44px;font-size: 24px;height: 80px;"
+                   data-300="padding-top: 10px;padding-left: 40px;background-position: 0 7px;background-size: 34px 34px;font-size: 16px; height: 50px;margin-top:0;">
+                    <strong>W</strong>ORLD <span class="subheading"
+                                                 data-0="font-size: 11px;line-height: 13px;"
+                                                 data-300="font-size: 9px;line-height: 8px;">Thế giới của mẹ</span>
+                </a>
+                <div class="navbar-toggle" data-toggle="collapse"
+                     data-target=".navbar-collapse">
+                    <a href="pre-pregnancy.html#">
+                        <i class="fa fa-bars"></i>
+                    </a>
+                </div>
+            </div>
+            <!-- Branding end -->
+            <!--.navbar-collapse -->
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+
+                    <li>
+                        <a href="index.html" data-0="padding: 30px 25px 22px;"
+                           data-300="padding: 15px 25px 10px;">
+                            <img class="icon-nav"
+                                 src="@Url.Content("~/Content/images/icon-nav/home.png")"> Trang chủ
+                        </a>
+                    </li>
+
+                    <li class="active">
+                        <a href="pre-pregnancy.html"
+                           data-0="padding: 30px 25px 22px;"
+                           data-300="padding: 15px 25px 10px;">
+                            <img class="icon-nav"
+                                 src="@Url.Content("~/Content/images/icon-nav/motherhood.png")"> Làm mẹ
+                        </a>
+                    </li>
+
+
+
+                    <li>
+                        <a href="advisory.html" data-0="padding: 30px 25px 22px;"
+                           data-300="padding: 15px 25px 10px;">
+                            <img class="icon-nav"
+                                 src="@Url.Content("~/Content/images/icon-nav/advisory.png")"> Tư vấn
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="video.html" data-0="padding: 30px 25px 22px;"
+                           data-300="padding: 15px 25px 10px;">
+                            <img class="icon-nav"
+                                 src="@Url.Content("~/Content/images/icon-nav/video.png")"> Video
+                        </a>
+                    </li>
+
+                    @Html.Partial("_LoginPartial")
+
+                    <li class="search">
+                        <input type="text" placeholder="&#61442;"
+                               data-0="margin-top:23px" data-300="margin-top:10px">
+                    </li>
+                </ul>
+            </div>
+            <!--/.navbar-collapse -->
+
+
+
+
+        </div>
+
+    </div>
+    <!-- END NAVBAR -->
+    <!-- BEGIN BREADCRUMBS -->
+    <div id="breadcrumbs" class="breadcrumbs bg-1">
+        
+    </div>
+    <!-- END BREADCRUMBS -->
+    <!-- PRE-PREGNANCY PAGE -->
+    <section class="section">
+        <div class="container">
+            @if (User.Identity.Name.Equals("admin"))
+            {
+                <div class="row">
+                    <div class="col-md-12 text-right">
+                        <a href="#modalCreateCategory"
+                           data-toggle="modal" class="btn btn-warning">
+                            <i class="fa fa-plus-circle"></i> Thêm danh mục
+                        </a>
+                    </div>
+                </div>
+            }
+
+            <hr class="post-divider">
+
+            <div class="row">
+                <div class="col-md-9">
+                    <div class="row title-category">
+                        <h1 class="headline">Mong con</h1>
+
+
+                        <div class="flexslider">
+                            <ul class="slides">
+                                <li>
+                                    <a href="">
+                                        <img src="@Url.Content("~/Content/images/page-images/1.jpg")" />
+                                        <div class="slide_text">
+                                            <div class="slide_title">
+                                                Sinh con ở tuổi 35: Chuẩn bị
+                                                những điều tiên quyết
+                                            </div>
+                                            <div class="slide_byline">
+                                                Quyết định sinh con ở tuổi
+                                                35, bạn phải chấp nhận khá nhiều rủi ro
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="">
+                                        <img src="@Url.Content("~/Content/images/page-images/2.jpg")" />
+                                        <div class="slide_text">
+                                            <div class="slide_title">
+                                                Bí quyết cực hay cho mẹ muốn
+                                                sinh con gái
+                                            </div>
+                                            <div class="slide_byline">
+                                                Quay ngược lại thời gian,
+                                                trường hợp ba mẹ muốn sinh con gái dường như rất ít.
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="">
+                                        <img src="@Url.Content("~/Content/images/page-images/3.jpg")" />
+                                        <div class="slide_text">
+                                            <div class="slide_title">
+                                                Tăng cơ hội mang thai cặp sinh
+                                                đôi
+                                            </div>
+                                            <div class="slide_byline">
+                                                Chế độ ăn uống, quốc tịch,
+                                                gen di truyền và lối sống đóng một vai trò nhất định
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    @foreach (var category in categories)
+                    {
+                        if (category.Articles.Count != 0 || User.Identity.Name.Equals("admin"))
+                        {
+                            <div id="@idDictionary[category.Id]" class=" row content-category">
+                                <div class="category">
+                                    <div class="title">
+                                        <div class="row">
+                                            <div class="col-md-12 ">
+                                                <div class="col-md-4">
+                                                    <h3 class="headline">@category.Name</h3>
+                                                </div>
+                                                <div class="col-md-8 text-center" style="line-height: 70px;">
+                                                    <a href="@Url.Action("Create","Articles")" class="btn btn-orange">
+                                                        <i class="fa fa-plus-circle"></i> Thêm bài viết
+                                                    </a>
+                                                    <a href="pre-pregnancy.html#modalEditCategory" data-toggle="modal" class="btn btn-green">
+                                                        <i class="fa fa-plus-circle"></i> Sửa danh mục
+                                                    </a>
+                                                    <a class="btn btn-red">
+                                                        <i class="fa fa-close"></i> Xóa
+                                                        danh mục
+                                                    </a> <a href="post.html" type="button" class="btn btn-cyan">
+                                                        Xem thêm <span class="btn-side">
+                                                            <i class="fa fa-chevron-right"></i>
+                                                        </span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="Content">
+                                        <div class="col-md-12">
+                                            <div class="owl-carousel owl-theme">
+                                                @foreach (var article in articles)
+                                                {
+                                                    if (article.CategoryId.Equals(category.Id))
+                                                    {
+                                                        <div class="item appear-el" data-animation="fadeIn">
+                                                            <figure>
+                                                                <div class="img-view">
+                                                                    <img src="@Url.Content("~/Content/images/post/1.jpg")"
+                                                                         alt="Place description here">
+                                                                    <div class="overlay">
+                                                                        <div class="overlay-controls">
+                                                                            <a href="@Url.Content("~/Content/images/post/1.jpg")" data-nivobox="true"
+                                                                               data-lightbox-gallery="gallery1">
+                                                                                <i class="fa fa-arrows-alt"></i>
+                                                                            </a> <a href="post-item.html#"><i class="fa fa-chain"></i></a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <figcaption>
+                                                                    <h5>@article.Title</h5>
+                                                                    <span>@Html.Raw(article.Description)</span>
+                                                                </figcaption>
+                                                            </figure>
+                                                        </div>
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 text-center">
+                                            <div class="btn-group custom-navigation">
+                                                <button type="button" class="btn prev">
+                                                    <i class="fa fa-chevron-left"></i>
+                                                </button>
+                                                <button type="button" class="btn next">
+                                                    <i class="fa fa-chevron-right"></i>
+                                                </button>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="separator"></div>
+
+                        }
+                        count += 1;
+                    }
+                </div>
+
+                <div class="col-md-3 post-sidebar">
+                    <section class="tile color transparent-white">
+
+                        <!-- tile header -->
+                        <div class="tile-header color greensea rounded-top-corners text-center">
+                            <h1>
+                                <strong>Đăng kí</strong> nhận tin
+                            </h1>
+                        </div>
+                        <!-- /tile header -->
+                        <!-- tile body -->
+                        <div class="tile-body">
+
+                            <form class="form-horizontal" role="form">
+
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" placeholder="Email">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+                                        <input class="form-control textbox-n" placeholder="Ngày mang thai"
+                                                type="text" onfocus="(this.type='date')"
+                                               onblur="(this.type='text')" id="date">
+                                    </div>
+                                </div>
+
+                                <div class="form-group form-footer">
+                                    <div class="col-sm-offset-4 col-sm-8">
+                                        <button type="submit" class="btn btn-warning">Đăng kí</button>
+                                    </div>
+                                </div>
+
+                            </form>
+
+                        </div>
+                        <!-- /tile body -->
+
+                    </section>
+
+
+                    <!-- CATEGORIES -->
+                    <section class="tile color transparent-white">
+
+                        <!-- tile header -->
+                        <div class="tile-header color redbrown rounded-top-corners text-center">
+                            <h1>
+                                <strong>Các mục </strong>nên xem
+                            </h1>
+                        </div>
+                        <!-- /tile header -->
+                        <!-- tile body -->
+                        <div class="tile-body">
+
+                            <form class="form-horizontal" role="form">
+                                <ul class="nav categories sidebar-widget">
+                                    <li><a href="post.html#">Sức khỏe sinh sản <em>(26)</em></a></li>
+                                    <li class="active">
+                                        <a href="post.html#">
+                                            40 tuần mang
+                                            thai <em>(40)</em>
+                                        </a>
+                                    </li>
+                                    <li><a href="post.html#">Sức khỏe trong thai kỳ <em>(15)</em></a></li>
+                                    <li><a href="post.html#">Dinh dưỡng thai kỳ <em>(2)</em></a></li>
+                                    <li><a href="post.html#">Kỹ năng làm mẹ <em>(8)</em></a></li>
+                                </ul>
+                            </form>
+
+                        </div>
+                        <!-- /tile body -->
+
+                    </section>
+                    <!-- END CATEGORIES -->
+                    <!-- TAGS -->
+                    <section class="tile color transparent-white">
+                        <!-- TAGS -->
+                        <div class="tile-header color cyan rounded-top-corners">
+                            <h1>Các thẻ</h1>
+                        </div>
+                        <div class="tile-body">
+                            <ul class="tags sidebar-widget">
+                                <li>
+                                    <a href="post.html#">
+                                        <i class="fa fa-tags"></i>
+                                        Mong con
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="post.html#">
+                                        <i class="fa fa-tags"></i>
+                                        Mang thai
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="post.html#">
+                                        <i class="fa fa-tags"></i> Trẻ
+                                        sơ sinh
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="post.html#">
+                                        <i class="fa fa-tags"></i>
+                                        Nuôi dạy con
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </section>
+                    <!-- END TAGS -->
+                </div>
+            </div>
+
+
+        </div>
+    </section>
+    <!-- END PRE-PREGNANCY PAGE -->
+    <!-- SCROLL TOP -->
+    <div class="scroll-top">
+        <a href="contacts.html#">
+            <i class="fa fa-angle-up"></i>
+        </a>
+    </div>
+    <!-- END SCROLL TOP -->
+
+
+
+
+
+
+
+
+
+    <script type="text/javascript">
+        var c1 = $("#category1 .owl-carousel");
+        c1.owlCarousel({
+            items: 3,
+            itemsDesktop: false,
+            pagination: false
+        });
+        $("#category1 .custom-navigation .next").click(function () {
+            c1.trigger("owl.next");
+        });
+        $("#category1 .custom-navigation .prev").click(function () {
+            c1.trigger("owl.prev");
+        });
+
+
+
+
+        var c2 = $("#category2 .owl-carousel");
+        c2.owlCarousel({
+            items: 3,
+            itemsDesktop: false,
+            pagination: false
+        });
+        $("#category2 .custom-navigation .next").click(function () {
+            c2.trigger("owl.next");
+        });
+        $("#category2 .custom-navigation .prev").click(function () {
+            c2.trigger("owl.prev");
+        });
+
+
+
+
+        var c3 = $("#category3 .owl-carousel");
+        c3.owlCarousel({
+            items: 3,
+            itemsDesktop: false,
+            pagination: false
+        });
+        $("#category3 .custom-navigation .next").click(function () {
+            c3.trigger("owl.next");
+        });
+        $("#category3 .custom-navigation .prev").click(function () {
+            c3.trigger("owl.prev");
+        });
+
+
+
+
+        var c4 = $("#category4 .owl-carousel");
+        c4.owlCarousel({
+            items: 3,
+            itemsDesktop: false,
+            pagination: false
+        });
+        $("#category4 .custom-navigation .next").click(function () {
+            c4.trigger("owl.next");
+        });
+        $("#category4 .custom-navigation .prev").click(function () {
+            c4.trigger("owl.prev");
+        });
+
+
+
+
+        var c5 = $("#category5 .owl-carousel");
+        c5.owlCarousel({
+            items: 3,
+            itemsDesktop: false,
+            pagination: false
+        });
+        $("#category5 .custom-navigation .next").click(function () {
+            c5.trigger("owl.next");
+        });
+        $("#category5 .custom-navigation .prev").click(function () {
+            c5.trigger("owl.prev");
+        });
+
+
+
+
+        var c6 = $("#category6 .owl-carousel");
+        c6.owlCarousel({
+            items: 3,
+            itemsDesktop: false,
+            pagination: false
+        });
+        $("#category6 .custom-navigation .next").click(function () {
+            c6.trigger("owl.next");
+        });
+        $("#category6 .custom-navigation .prev").click(function () {
+            c6.trigger("owl.prev");
+        });
+
+
+        var c7 = $("#category7 .owl-carousel");
+        c7.owlCarousel({
+            items: 3,
+            itemsDesktop: false,
+            pagination: false
+        });
+        $("#category7 .custom-navigation .next").click(function () {
+            c7.trigger("owl.next");
+        });
+        $("#category7 .custom-navigation .prev").click(function () {
+            c7.trigger("owl.prev");
+        });
+
+
+
+        var c8 = $("#category8 .owl-carousel");
+        c8.owlCarousel({
+            items: 3,
+            itemsDesktop: false,
+            pagination: false
+        });
+        $("#category8 .custom-navigation .next").click(function () {
+            c8.trigger("owl.next");
+        });
+        $("#category8 .custom-navigation .prev").click(function () {
+            c8.trigger("owl.prev");
+        });
+
+    </script>
+
+
+
+
+
+
+    <script type="text/javascript">
+        $('#submitCategory').click(function () {
+            var name = $('#categoryName').val();
+            var description = $('#categoryDescription').val();
+            $.ajax({
+                url: '/Categories/CreateCategory',
+                dataType: "json",
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({ category: { name: name, description: description } }),
+                async: true,
+                processData: false,
+                cache: false,
+                success: function (data) {
+                    window.location.reload(true);
+                },
+            });
+        });
+    </script>
+</body>
+</html>
